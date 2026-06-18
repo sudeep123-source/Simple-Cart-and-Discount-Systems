@@ -1,7 +1,27 @@
-# AI Usage Note
+# AI Tool Usage Note
 
-**Which AI tools I used:** Claude (Anthropic).
+**Tool used:** Claude (Anthropic), used as a pair-programming assistant
+throughout development.
 
-**How it helped during development:** I used Claude to help design the class structure for the cart and discount system, applying a Strategy pattern (`Discount` interface with `PercentageDiscount`, `FlatDiscount`, and `CouponDiscount` implementations) so new discount types can be added later without changing existing code. Claude also helped write the input validation logic (handling non-numeric input, negative prices/quantities, and empty-cart edge cases), and caught a real bug during testing: the coupon's minimum-spend rule wasn't being checked until the final amount was calculated, which meant an invalid coupon would appear to apply successfully and only fail later. Restructuring `Cart.applyDiscount()` to validate eagerly fixed that. Claude also ran the compiled program with various simulated inputs to verify the math and error handling before finalizing the code.
+**How it helped:** 
+* I described the requirements (add items to cart,
+calculate total, apply a discount, display final amount, built in Python) and
+Claude generated an initial working version of the application, structured
+around a `Cart` class, an `Item` model, and a discount-lookup function. From
+there.
+* I used Claude iteratively to harden the code: adding input validation
+for edge cases (empty item names, negative prices, zero quantities, invalid
+discount codes), preventing a fixed discount from pushing the total below
+zero, and improving the CLI flow so invalid input prompts the user to retry
+instead of crashing or silently failing. Claude also ran the code after each
+change to verify behavior (e.g., testing that an invalid discount code is
+rejected, that a $100 fixed discount on a $10 cart correctly caps at $0
+instead of going negative) 
+* At last,before the final version was finalized, which
+speed up the verification cycle significantly compared to manually tracing
+through test cases by hand.
 
-**Challenges encountered:** The main challenge was making sure discount validation happened at the right point in the flow (at the moment of applying the discount, not deferred to display time) so the user gets immediate, clear feedback rather than a silently-accepted invalid state. Testing a CLI application's full interactive flow (rather than just unit-testing individual methods) also took some care, since it meant simulating multi-step user input sequences to exercise the menu loop end-to-end.
+**Challenges encountered:**
+* Balancing strict input validation with a simple and user-friendly interface.
+* Handling edge cases such as invalid discount codes and discounts exceeding the cart total (e.g., a $100 discount applied to a $10 cart), ensuring the final amount never becomes negative.
+* Deciding whether invalid user inputs should be rejected immediately or allow users to retry, while maintaining a smooth CLI experience.
